@@ -7,6 +7,9 @@ Group:		Base
 Source0:	http://download.berlios.de/einit/%{name}-%{version}.tar.bz2
 # Source0-md5:	3434c56760a8b3d27856a794367e09e4
 URL:		http://www.einit.org/project/einit-core
+BuildRequires:	expat-devel
+BuildRequires:	libnl-devel
+BuildRequires:	pkgconfig
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_prefix	/
