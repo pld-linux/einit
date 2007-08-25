@@ -1,6 +1,7 @@
 # TODO
 # - kill: Requires: /bin/bash
 Summary:	Event-based init daemon
+Summary(pl.UTF-8):	Demon init oparty na zdarzeniach
 Name:		einit
 Version:	0.24.2
 Release:	0.1
@@ -14,22 +15,32 @@ BuildRequires:	libnl-devel >= 1.0-0.pre6.3
 BuildRequires:	pkgconfig
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define		_prefix	/
+%define		_prefix		/
 %define		_includedir	/usr/include
 
 %description
 eINIT is a replacement for SysVinit, an init system used on UNIX-based
 operating systems. eINIT is designed with speed in mind. Many testers
-claim that their systems boot up in 30 seconds, whereas sysvinit takes
+claim that their systems boot up in 30 seconds, whereas SysVinit takes
 around two minutes to boot.
+
+%description -l pl.UTF-8
+eINIT to zamiennik systemu SysVinit używanego w systemach operacyjnych
+opartych na Uniksie. eINIT został zaprojektowany z myślą o szybkości.
+Wielu testujących twierdzi, że ich systemy uruchamiają się w 30
+sekund, podczas gdy SysVinit potrzebował na to około dwóch minut.
 
 %package devel
 Summary:	Header files for eINIT
+Summary(pl.UTF-8):	Pliki nagłówkowe systemu eINIT
 Group:		Development/Libraries
-Requires:	%{name} = %{version}-%{release}
+# doesn't require base
 
 %description devel
 eINIT header files for developing plugins for eINIT.
+
+%description devel -l pl.UTF-8
+Pliki nagłówkowe systemu eINIT do tworzenia wtyczek dla niego.
 
 %prep
 %setup -q
@@ -51,6 +62,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc AUTHORS ChangeLog NEWS TODO
 /etc/dbus-1/system.d/einit.conf
+%dir %{_sysconfdir}/einit
 %{_sysconfdir}/einit/*.xml
 %{_sysconfdir}/einit/subsystems.d
 
