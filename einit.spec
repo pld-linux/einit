@@ -3,20 +3,22 @@
 Summary:	Event-based init daemon
 Summary(pl.UTF-8):	Demon init oparty na zdarzeniach
 Name:		einit
-Version:	0.24.2
+Version:	0.40.0
 Release:	0.1
 License:	GPL v2
 Group:		Base
-Source0:	http://download.berlios.de/einit/%{name}-%{version}.tar.bz2
-# Source0-md5:	3434c56760a8b3d27856a794367e09e4
-URL:		http://www.einit.org/project/einit-core
+Source0:	http://einit.org/files/%{name}-%{version}.tar.bz2
+# Source0-md5:	92c65507a4e60993053649c742201605
+URL:		http://www.einit.org/
 BuildRequires:	expat-devel
 BuildRequires:	libnl-devel >= 1.0-0.pre6.3
+BuildRequires:	ncurses-devel
 BuildRequires:	pkgconfig
+BuildRequires:	scons
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define		_prefix		/
 %define		_includedir	/usr/include
+%define		_prefix	/
 
 %description
 eINIT is a replacement for SysVinit, an init system used on UNIX-based
@@ -46,14 +48,30 @@ Pliki nagłówkowe systemu eINIT do tworzenia wtyczek dla niego.
 %setup -q
 
 %build
-%configure
-%{__make}
+export CFLAGS=-I%{_includedir}/ncurses
+export CC='%{__cc}'
+export CXX='%{__cxx}'
+export CXXFLAGS='%{rpmcxxflags}'
+%scons \
+	destdir=$RPM_BUILD_ROOT \
+	prefix=%{_prefix} \
+	os_cc=1 \
+	os_cxx=1 \
+	os_cxxflags=1
 
 %install
 rm -rf $RPM_BUILD_ROOT
 
-%{__make} install \
-	DESTDIR=$RPM_BUILD_ROOT
+export CFLAGS=-I%{_includedir}/ncurses
+export CC='%{__cc}'
+export CXX='%{__cxx}'
+export CXXFLAGS='%{rpmcxxflags}'
+%scons install \
+	destdir=$RPM_BUILD_ROOT \
+	prefix=%{_prefix} \
+	os_cc=1 \
+	os_cxx=1 \
+	os_cxxflags=1
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -61,54 +79,51 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %doc AUTHORS ChangeLog NEWS TODO
-/etc/dbus-1/system.d/einit.conf
+#/etc/dbus-1/system.d/einit.conf
 %dir %{_sysconfdir}/einit
 %{_sysconfdir}/einit/*.xml
+%{_sysconfdir}/einit/rules.edev
 %{_sysconfdir}/einit/subsystems.d
 
 %attr(755,root,root) %{_sbindir}/einit
-%attr(755,root,root) %{_sbindir}/einit-control
+%attr(755,root,root) %{_sbindir}/einit-sysvd
+
+%attr(755,root,root) %{_libdir}/libeinit++.so
+%attr(755,root,root) %{_libdir}/libeinit.so
 
 %dir %{_libdir}/einit
 %dir %{_libdir}/einit/bin
-%attr(755,root,root) %{_libdir}/einit/bin/crash-handler
+%attr(755,root,root) %{_libdir}/einit/bin/einit-core
+%attr(755,root,root) %{_libdir}/einit/bin/einit-feedback
+%attr(755,root,root) %{_libdir}/einit/bin/einit-helper
+%attr(755,root,root) %{_libdir}/einit/bin/einit-log
+%attr(755,root,root) %{_libdir}/einit/bin/last-rites
+
 %{_libdir}/einit/defaults
 %{_libdir}/einit/einit.xml
 
+%dir %{_libdir}/einit/bootstrap
+%attr(755,root,root) %{_libdir}/einit/bootstrap/bootstrap-configuration-stree.so
+%attr(755,root,root) %{_libdir}/einit/bootstrap/bootstrap-configuration-xml-expat.so
+
 %dir %{_libdir}/einit/modules
-%attr(755,root,root) %{_libdir}/einit/modules/compatibility-sysv-initctl.so
-%attr(755,root,root) %{_libdir}/einit/modules/compatibility-sysv-utmp.so
-%attr(755,root,root) %{_libdir}/einit/modules/cron.so
-%attr(755,root,root) %{_libdir}/einit/modules/exec.so
-%attr(755,root,root) %{_libdir}/einit/modules/external.so
-%attr(755,root,root) %{_libdir}/einit/modules/feedback-aural-festival.so
-%attr(755,root,root) %{_libdir}/einit/modules/feedback-aural.so
-%attr(755,root,root) %{_libdir}/einit/modules/feedback-visual-fbsplash.so
-%attr(755,root,root) %{_libdir}/einit/modules/feedback-visual-textual.so
-%attr(755,root,root) %{_libdir}/einit/modules/fqdn.so
-%attr(755,root,root) %{_libdir}/einit/modules/ipc-configuration.so
-%attr(755,root,root) %{_libdir}/einit/modules/ipc-core-helpers.so
-%attr(755,root,root) %{_libdir}/einit/modules/ipc.so
-%attr(755,root,root) %{_libdir}/einit/modules/linux-module-kernel.so
-%attr(755,root,root) %{_libdir}/einit/modules/linux-mount.so
-%attr(755,root,root) %{_libdir}/einit/modules/linux-process.so
-%attr(755,root,root) %{_libdir}/einit/modules/linux-sysconf.so
-%attr(755,root,root) %{_libdir}/einit/modules/module-network.so
-%attr(755,root,root) %{_libdir}/einit/modules/module-transformations.so
-%attr(755,root,root) %{_libdir}/einit/modules/module-xml.so
-%attr(755,root,root) %{_libdir}/einit/modules/mount.so
-%attr(755,root,root) %{_libdir}/einit/modules/parse-sh.so
-%attr(755,root,root) %{_libdir}/einit/modules/process.so
-%attr(755,root,root) %{_libdir}/einit/modules/scheduler.so
+%attr(755,root,root) %{_libdir}/einit/modules/bundle-base.so
+%attr(755,root,root) %{_libdir}/einit/modules/bundle-compatibility.so
+%attr(755,root,root) %{_libdir}/einit/modules/bundle-linux.so
+%attr(755,root,root) %{_libdir}/einit/modules/ipc-9p.so
+%attr(755,root,root) %{_libdir}/einit/modules/linux-urandom.so
+%attr(755,root,root) %{_libdir}/einit/modules/module-logic-v4.so
 %attr(755,root,root) %{_libdir}/einit/modules/shadow-exec.so
-%attr(755,root,root) %{_libdir}/einit/modules/tty.so
+
+%dir %{_libdir}/einit/schemata
+%{_libdir}/einit/schemata/data-types.rnc
+%{_libdir}/einit/schemata/einit-module.rnc
+%{_libdir}/einit/schemata/einit-network.rnc
+%{_libdir}/einit/schemata/einit.rnc
 
 %dir %{_libdir}/einit/scripts
-%attr(755,root,root) %{_libdir}/einit/scripts/configuration
-%attr(755,root,root) %{_libdir}/einit/scripts/einit.d_erc.sh
-%attr(755,root,root) %{_libdir}/einit/scripts/install-config
-%attr(755,root,root) %{_libdir}/einit/scripts/update_conf.d.sh
-%attr(755,root,root) %{_libdir}/einit/scripts/write_devroot_rules
+%attr(755,root,root) %{_libdir}/einit/scripts/import-fstab
+%attr(755,root,root) %{_libdir}/einit/scripts/make-initramfs
 
 %files devel
 %defattr(644,root,root,755)
